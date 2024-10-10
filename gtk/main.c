@@ -1,7 +1,11 @@
 #include <gtk/gtk.h>
 
 static void app_activate(GApplication *app, gpointer *user_data) {
-  g_print("GtkApplication is activated.\n");
+  GtkWidget *win;
+
+  win = gtk_window_new();
+  gtk_window_set_application(GTK_WINDOW(win), GTK_APPLICATION(app));
+  gtk_window_present(GTK_WINDOW(win));
 }
 
 int main(int argc, char **argv) {
