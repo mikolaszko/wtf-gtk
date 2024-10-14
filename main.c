@@ -1,10 +1,11 @@
 #include <gtk/gtk.h>
 
 static void app_activate(GApplication *app) {
-  g_printerr ("You need a filename argument.\n");
+  g_printerr("You need a filename argument.\n");
 }
 
-static void app_open(GApplication *app, GFile ** files, int n_files, char *hint) {
+static void app_open(GApplication *app, GFile **files, int n_files,
+                     char *hint) {
   GtkWidget *win;
   GtkWidget *nb;
   GtkWidget *lab;
@@ -18,39 +19,37 @@ static void app_open(GApplication *app, GFile ** files, int n_files, char *hint)
   int i;
   GError *err = NULL;
 
-  win = gtk_application_window_new (GTK_APPLICATION(app));
+  win = gtk_application_window_new(GTK_APPLICATION(app));
   gtk_window_set_default_size(GTK_WINDOW(win), 400, 300);
-  gtk_window_set_title (GTK_WINDOW(win), "fule viewer");
+  gtk_window_set_title(GTK_WINDOW(win), "fule viewer");
 
   nb = gtk_notebook_new();
   gtk_window_set_child(GTK_WINDOW(win), nb);
 
-
   for (i = 0; i < n_files; i++) {
     if (g_file_load_contents(files[i], NULL, &contents, &length, NULL, &err)) {
-      scr = gtk_scrolled_window_new ();
-      tv = gtk_text_view_new ();
-      tb = gtk_text_view_get_buffer (GTK_TEXT_VIEW(tv));
+      scr = gtk_scrolled_window_new();
+      tv = gtk_text_view_new();
+      tb = gtk_text_view_get_buffer(GTK_TEXT_VIEW(tv));
       gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(tv), GTK_WRAP_WORD_CHAR);
-      gtk_text_view_set_editable (GTK_TEXT_VIEW(tv), FALSE);
-      gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (scr), tv);
+      gtk_text_view_set_editable(GTK_TEXT_VIEW(tv), FALSE);
+      gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scr), tv);
 
       gtk_text_buffer_set_text(tb, contents, length);
       g_free(contents);
 
-      if ((filename = g_file_get_basename (files[i])) != NULL) {
+      if ((filename = g_file_get_basename(files[i])) != NULL) {
         lab = gtk_label_new(filename);
         g_free(filename);
       } else {
         lab = gtk_label_new("");
       }
-      gtk_notebook_append_page (GTK_NOTEBOOK(nb), scr, lab);
+      gtk_notebook_append_page(GTK_NOTEBOOK(nb), scr, lab);
       nbp = gtk_notebook_get_page(GTK_NOTEBOOK(nb), scr);
       g_object_set(nbp, "tab-expand", TRUE, NULL);
     } else {
-      g_printerr( "%s.\n", err->message);
-      g_error_free(err);
-      gtk_window_destroy(GTK_WINDOW(win));
+      g_printerr("%s.\n", err->message);
+      g_clear_error(&err);
     }
   }
 
@@ -65,7 +64,8 @@ int main(int argc, char **argv) {
   GtkApplication *app;
   int stat;
 
-  app = gtk_application_new("com.github.mikolaszko.ste", G_APPLICATION_HANDLES_OPEN);
+  app = gtk_application_new("com.github.mikolaszko.ste",
+                            G_APPLICATION_HANDLES_OPEN);
   g_signal_connect(app, "activate", G_CALLBACK(app_activate), NULL);
   g_signal_connect(app, "open", G_CALLBACK(app_open), NULL);
   stat = g_application_run(G_APPLICATION(app), argc, argv);
