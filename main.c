@@ -1,3 +1,4 @@
+#include "res.c"
 #include <gtk/gtk.h>
 
 // --- GObject section ---
@@ -75,51 +76,14 @@ static void app_open(GApplication *app, GFile **files, int n_files,
   char *filename;
   int i;
   GError *err = NULL;
+  GtkBuilder *build;
 
-  GtkWidget *boxv;
-  GtkWidget *boxh;
-  GtkWidget *dmy1;
-  GtkWidget *dmy2;
-  GtkWidget *dmy3;
-  GtkWidget *btnn; // new
-  GtkWidget *btno; // open
-  GtkWidget *btns; // save
-  GtkWidget *btnc; // close
-
-  win = gtk_application_window_new(GTK_APPLICATION(app));
-  gtk_window_set_default_size(GTK_WINDOW(win), 400, 300);
-  gtk_window_set_title(GTK_WINDOW(win), "file editor");
-
-  boxv = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-  gtk_window_set_child(GTK_WINDOW(win), boxv);
-
-  boxh = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-  gtk_box_append(GTK_BOX(boxv), boxh);
-
-  dmy1 = gtk_label_new(NULL);
-  gtk_label_set_width_chars(GTK_LABEL(dmy1), 10);
-  dmy2 = gtk_label_new(NULL);
-  gtk_widget_set_hexpand(dmy2, TRUE);
-  dmy3 = gtk_label_new(NULL);
-  gtk_label_set_width_chars(GTK_LABEL(dmy3), 10);
-  btnn = gtk_button_new_with_label("New");
-  btno = gtk_button_new_with_label("Open");
-  btns = gtk_button_new_with_label("Save");
-  btnc = gtk_button_new_with_label("Close");
-
-  gtk_box_append(GTK_BOX(boxh), dmy1);
-  gtk_box_append(GTK_BOX(boxh), btnn);
-  gtk_box_append(GTK_BOX(boxh), btno);
-  gtk_box_append(GTK_BOX(boxh), dmy2);
-  gtk_box_append(GTK_BOX(boxh), btns);
-  gtk_box_append(GTK_BOX(boxh), btnc);
-  gtk_box_append(GTK_BOX(boxh), dmy3);
-
-  nb = gtk_notebook_new();
-  gtk_widget_set_hexpand(nb, TRUE);
-  gtk_widget_set_vexpand(nb, TRUE);
-  gtk_box_append(GTK_BOX(boxv), nb);
-
+  build =
+      gtk_builder_new_from_resource("/com/github/mikolaszko/wtf-gtk/wtfgtk.ui");
+  win = GTK_WIDGET(gtk_builder_get_object(build, "win"));
+  gtk_window_set_application(GTK_WINDOW(win), GTK_APPLICATION(app));
+  nb = GTK_WIDGET(gtk_builder_get_object(build, "nb"));
+  g_object_unref(build);
   for (i = 0; i < n_files; i++) {
     if (g_file_load_contents(files[i], NULL, &contents, &length, NULL, &err)) {
       scr = gtk_scrolled_window_new();
